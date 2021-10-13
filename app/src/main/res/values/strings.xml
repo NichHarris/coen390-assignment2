@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">coen390-assignment2</string>
     <string name="add_profile">Add Profile</string>
+    <string name="display_mode">Display Mode</string>
+    <string name="cancel">CANCEL</string>
+    <string name="student_surname">Student Surname</string>
+    <string name="student_name">Student Name</string>
+    <string name="student_id">Student ID</string>
+    <string name="student_gpa">Student GPA</string>
+    <string name="save">Save</string>
+    <string name="ADD">+</string>
 </resources>

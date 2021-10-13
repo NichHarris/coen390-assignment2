@@ -23,13 +23,13 @@
         android:layout_marginTop="150dp"
         android:textStyle="bold" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_profile"
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_launcher_background" />
+        android:id="@+id/add_user"
+        android:text="@string/ADD"
+        android:layout_marginTop="600dp"
+        android:layout_marginStart="300dp" />
 
 
 </RelativeLayout>

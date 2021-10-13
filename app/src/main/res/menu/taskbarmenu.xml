@@ -4,7 +4,7 @@
 
     <!-- Create drop down option for edit settings -->
     <item
-        android:title="@string/add_profile"
-        android:id="@+id/add_profile"
+        android:title="@string/display_mode"
+        android:id="@+id/display_mode"
         app:showAsAction="never" />
 </menu>
