@@ -9,4 +9,6 @@
     <string name="student_gpa">Student GPA</string>
     <string name="save">Save</string>
     <string name="ADD">+</string>
+    <string name="user_profile">User Profile</string>
+    <string name="access_history">Access History</string>
 </resources>

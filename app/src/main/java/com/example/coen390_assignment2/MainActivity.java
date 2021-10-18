@@ -35,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show(getFragmentManager(), "Helper");
             }
         });
-
-
     }
 
     // Display options menu in task-bar
