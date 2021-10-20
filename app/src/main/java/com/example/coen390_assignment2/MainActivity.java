@@ -10,23 +10,46 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.coen390_assignment2.Database.Config;
+import com.example.coen390_assignment2.Database.DatabaseHelper;
+
 import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     // Initialize variables
+    protected SharePreferenceHelper sharePreferenceHelper;
+    protected DatabaseHelper dbHelper;
     protected TextView userCount;
     protected Button addUser;
+    protected ListView userList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        sharePreferenceHelper = new SharePreferenceHelper(MainActivity.this);
+        dbHelper = new DatabaseHelper(this, Config.DATABASE_NAME, null, Config.DATABASE_VERSION);
         userCount = (TextView) findViewById(R.id.num_profiles);
+        userList = (ListView) findViewById(R.id.user_list);
+
+        if (sharePreferenceHelper.getDisplayMode()) {
+            setUserList(dbHelper.getAllProfiles("surname"));
+            setUserCount("Surname", dbHelper.getNumUsers());
+        } else {
+            setUserList(dbHelper.getAllProfiles("profileId"));
+            setUserCount("ID", dbHelper.getNumUsers());
+        }
+
         addUser = (Button) findViewById(R.id.add_user);
         addUser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,12 +67,43 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public void setUserList(List<String[]> users) {
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, convertList(users, sharePreferenceHelper.getDisplayMode()));
+        userList.setAdapter(arrayAdapter);
+    }
+
+    public void setUserCount(String mode, int count) {
+        userCount.setText(String.format("%d Profiles, by %s", count, mode));
+    }
+
+    public List<String> convertList(List<String[]> iList, boolean mode) {
+        List<String> returnList = new ArrayList<>();
+        if (mode) {
+            for (int i = 0; i < iList.size(); i++) {
+                returnList.add(String.format("%d. %s, %s", i + 1, iList.get(i)[1], iList.get(i)[0]));
+            }
+        } else {
+            for (int i = 0; i < iList.size(); i++) {
+                returnList.add(String.format("%d. %s", i + 1, iList.get(i)[3]));
+            }
+        }
+        return returnList;
+    }
+
     // Create the action when an option on the task-bar is selected
     @Override
     public  boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.display_mode) {
-            // some event
+            if (sharePreferenceHelper.getDisplayMode()) {
+                sharePreferenceHelper.setDisplayMode(false);
+                setUserList(dbHelper.getAllProfiles("profileId"));
+                setUserCount("ID", dbHelper.getNumUsers());
+            } else {
+                sharePreferenceHelper.setDisplayMode(true);
+                setUserList(dbHelper.getAllProfiles("surname"));
+                setUserCount("Surname", dbHelper.getNumUsers());
+            }
         }
         return super.onOptionsItemSelected(item);
     }

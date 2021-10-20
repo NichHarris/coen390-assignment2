@@ -21,4 +21,13 @@ public class SharePreferenceHelper {
     }
 
     public int getProfileCount() { return sharedPreferences.getInt("profileCount", 0); }
+
+    public void setDisplayMode(boolean isEnabled) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        assert editor != null;
+        editor.putBoolean("displayMode", isEnabled);
+        editor.apply();
+    }
+
+    public boolean getDisplayMode() { return sharedPreferences.getBoolean("displayMode", true); }
 }
