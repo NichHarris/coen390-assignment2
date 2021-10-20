@@ -1,8 +1,6 @@
-package com.example.coen390_assignment2;
+package com.example.coen390_assignment2.Models;
 
-import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +11,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.example.coen390_assignment2.Database.Config;
-import com.example.coen390_assignment2.Database.DatabaseHelper;
+import com.example.coen390_assignment2.Controllers.Config;
+import com.example.coen390_assignment2.Controllers.DatabaseHelper;
+import com.example.coen390_assignment2.Views.MainActivity;
+import com.example.coen390_assignment2.R;
 
 import java.text.DecimalFormat;
 

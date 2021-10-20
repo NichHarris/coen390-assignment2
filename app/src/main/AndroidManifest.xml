@@ -10,10 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Coen390assignment2">
         <activity
-            android:name=".ProfileActivity"
+            android:name=".Views.ProfileActivity"
             android:exported="true" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Views.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

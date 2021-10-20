@@ -2,7 +2,7 @@
 // Nicholas Harris - 40111093
 // harris.nicholas1998@gmail.com
 
-package com.example.coen390_assignment2.Database;
+package com.example.coen390_assignment2.Controllers;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -17,15 +17,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.material.button.MaterialButton;
-
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {

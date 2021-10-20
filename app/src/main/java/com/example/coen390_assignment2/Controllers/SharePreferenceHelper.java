@@ -2,7 +2,7 @@
 // Nicholas Harris - 40111093
 // harris.nicholas1998@gmail.com
 
-package com.example.coen390_assignment2;
+package com.example.coen390_assignment2.Controllers;
 
 import android.content.Context;
 import android.content.SharedPreferences;

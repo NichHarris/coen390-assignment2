@@ -2,7 +2,7 @@
 // Nicholas Harris - 40111093
 // harris.nicholas1998@gmail.com
 
-package com.example.coen390_assignment2;
+package com.example.coen390_assignment2.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,10 +17,11 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.coen390_assignment2.Database.Config;
-import com.example.coen390_assignment2.Database.DatabaseHelper;
-
-import org.w3c.dom.Text;
+import com.example.coen390_assignment2.Controllers.Config;
+import com.example.coen390_assignment2.Controllers.DatabaseHelper;
+import com.example.coen390_assignment2.Models.DialogHelper;
+import com.example.coen390_assignment2.R;
+import com.example.coen390_assignment2.Controllers.SharePreferenceHelper;
 
 import java.util.ArrayList;
 import java.util.List;

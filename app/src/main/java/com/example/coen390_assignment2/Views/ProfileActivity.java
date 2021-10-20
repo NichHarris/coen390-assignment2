@@ -2,11 +2,10 @@
 // Nicholas Harris - 40111093
 // harris.nicholas1998@gmail.com
 
-package com.example.coen390_assignment2;
+package com.example.coen390_assignment2.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,10 +15,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.coen390_assignment2.Database.Config;
-import com.example.coen390_assignment2.Database.DatabaseHelper;
-
-import java.util.List;
+import com.example.coen390_assignment2.Controllers.Config;
+import com.example.coen390_assignment2.Controllers.DatabaseHelper;
+import com.example.coen390_assignment2.R;
 
 public class ProfileActivity extends AppCompatActivity {
 
