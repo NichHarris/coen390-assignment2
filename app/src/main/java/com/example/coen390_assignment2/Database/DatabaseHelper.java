@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -120,12 +122,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return read().query(Config.PROFILE_TABLE_NAME, returnColumns, null, null, null, null, sortType);
     }
 
+    public Cursor getOnlyIdAccess(int id) {
+        String[] returnColumns = new String[]{Config.COLUMN_ACCESS_ACCESSID, Config.COLUMN_ACCESS_PROFILEID, Config.COLUMN_ACCESS_TYPE, Config.COLUMN_ACCESS_TIME};
+        String strId = String.format("%d", id);
+        return read().query(Config.ACCESS_TABLE_NAME, returnColumns, String.format("%s = ?", Config.COLUMN_ACCESS_PROFILEID), new String[]{strId}, null, null, Config.COLUMN_ACCESS_ACCESSID + " DESC");
+    }
+
     // get a readable db
     public SQLiteDatabase read() { return this.getReadableDatabase(); }
 
     // get a writable db
     public SQLiteDatabase write() { return this.getWritableDatabase(); }
 
+
+    @SuppressLint("Range")
     public List<String[]> getAllProfiles(String sortType) {
         SQLiteDatabase db = read();
         Cursor cursor = null;
@@ -136,11 +146,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 if (cursor.moveToFirst()) {
                     List<String[]> users = new ArrayList<>();
                     do {
-                        @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_NAME));
-                        @SuppressLint("Range") String surname = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_SURNAME));
-                        @SuppressLint("Range") String date = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_DATE));
-                        @SuppressLint("Range") String profileId = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_ID));
-                        @SuppressLint("Range") String gpa = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_GPA));
+                        String name = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_NAME));
+                        String surname = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_SURNAME));
+                        String date = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_DATE));
+                        String profileId = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_ID));
+                        String gpa = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_GPA));
                         String[] str = new String[]{name, surname, date, profileId, gpa};
                         users.add(str);
                     } while(cursor.moveToNext());
@@ -158,6 +168,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return Collections.emptyList();
     }
 
+    public void closeProfile(int id) {
+        SQLiteDatabase db = write();
+        ContentValues cvAccess = new ContentValues();
+        cvAccess.put(Config.COLUMN_ACCESS_PROFILEID, id);
+        cvAccess.put(Config.COLUMN_ACCESS_TYPE, "closed");
+        cvAccess.put(Config.COLUMN_ACCESS_TIME, getDate());
+        try {
+            db.insertOrThrow(Config.ACCESS_TABLE_NAME, null, cvAccess);
+        } catch (SQLException e) {
+            Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
+        } finally {
+            db.close();
+        }
+    }
+
     public void dropProfile() {
 
     }
@@ -170,6 +195,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
         }
         return (int) num;
+    }
+
+    @SuppressLint("Range")
+    public List<String> getAccessList(int id) {
+        SQLiteDatabase db = read();
+        Cursor cursor = null;
+
+        try {
+            cursor = getOnlyIdAccess(id);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    List<String> access = new ArrayList<>();
+                    do {
+                        access.add(String.format("%s %s", cursor.getString(cursor.getColumnIndex(Config.COLUMN_ACCESS_TIME)), cursor.getString(cursor.getColumnIndex(Config.COLUMN_ACCESS_TYPE))));
+                    } while (cursor.moveToNext());
+                    return access;
+                }
+            }
+        } catch (SQLiteException e) {
+            Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+        return Collections.emptyList();
     }
 
     private String getDate() {

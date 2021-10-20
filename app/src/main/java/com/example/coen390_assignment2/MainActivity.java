@@ -6,10 +6,12 @@ package com.example.coen390_assignment2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -49,6 +51,15 @@ public class MainActivity extends AppCompatActivity {
             setUserList(dbHelper.getAllProfiles("profileId"));
             setUserCount("ID", dbHelper.getNumUsers());
         }
+
+        userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Object listItem = userList.getItemAtPosition(i);
+                System.out.println(listItem.toString());
+                openUser(10000001);
+            }
+        });
 
         addUser = (Button) findViewById(R.id.add_user);
         addUser.setOnClickListener(new View.OnClickListener() {
@@ -106,5 +117,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openUser(int userId) {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra("id", userId);
+        startActivity(intent);
     }
 }
