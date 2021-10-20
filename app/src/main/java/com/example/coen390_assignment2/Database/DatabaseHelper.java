@@ -183,8 +183,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void dropProfile() {
-
+    public void dropProfile(int id) {
+        try (SQLiteDatabase db = write()) {
+            db.delete(Config.PROFILE_TABLE_NAME, Config.COLUMN_PROFILE_ID + "=" + String.format("%d", id), null);
+        } catch (SQLException e) {
+            Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
+        }
     }
 
     public int getNumUsers() {

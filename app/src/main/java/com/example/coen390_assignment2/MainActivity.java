@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     protected TextView userCount;
     protected Button addUser;
     protected ListView userList;
-
+    protected List<Integer> profileIds;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,21 +43,13 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this, Config.DATABASE_NAME, null, Config.DATABASE_VERSION);
         userCount = (TextView) findViewById(R.id.num_profiles);
         userList = (ListView) findViewById(R.id.user_list);
-
-        if (sharePreferenceHelper.getDisplayMode()) {
-            setUserList(dbHelper.getAllProfiles("surname"));
-            setUserCount("Surname", dbHelper.getNumUsers());
-        } else {
-            setUserList(dbHelper.getAllProfiles("profileId"));
-            setUserCount("ID", dbHelper.getNumUsers());
-        }
+        updatePage();
 
         userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Object listItem = userList.getItemAtPosition(i);
-                System.out.println(listItem.toString());
-                openUser(10000001);
+                openUser(profileIds.get(i));
             }
         });
 
@@ -69,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show(getFragmentManager(), "Helper");
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updatePage();
     }
 
     // Display options menu in task-bar
@@ -89,13 +87,16 @@ public class MainActivity extends AppCompatActivity {
 
     public List<String> convertList(List<String[]> iList, boolean mode) {
         List<String> returnList = new ArrayList<>();
+        profileIds = new ArrayList<>();
         if (mode) {
             for (int i = 0; i < iList.size(); i++) {
                 returnList.add(String.format("%d. %s, %s", i + 1, iList.get(i)[1], iList.get(i)[0]));
+                profileIds.add(Integer.parseInt(iList.get(i)[3]));
             }
         } else {
             for (int i = 0; i < iList.size(); i++) {
                 returnList.add(String.format("%d. %s", i + 1, iList.get(i)[3]));
+                profileIds.add(Integer.parseInt(iList.get(i)[3]));
             }
         }
         return returnList;
@@ -123,5 +124,15 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ProfileActivity.class);
         intent.putExtra("id", userId);
         startActivity(intent);
+    }
+
+    public void updatePage() {
+        if (sharePreferenceHelper.getDisplayMode()) {
+            setUserList(dbHelper.getAllProfiles("surname"));
+            setUserCount("Surname", dbHelper.getNumUsers());
+        } else {
+            setUserList(dbHelper.getAllProfiles("profileId"));
+            setUserCount("ID", dbHelper.getNumUsers());
+        }
     }
 }

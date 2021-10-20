@@ -13,15 +13,6 @@ public class SharePreferenceHelper {
         sharedPreferences = context.getSharedPreferences("ProfilePreference", Context.MODE_PRIVATE);
     }
 
-    public void addProfile() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        assert editor != null;
-        editor.putInt("profileCount", getProfileCount());
-        editor.apply();
-    }
-
-    public int getProfileCount() { return sharedPreferences.getInt("profileCount", 0); }
-
     public void setDisplayMode(boolean isEnabled) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         assert editor != null;

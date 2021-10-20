@@ -1,6 +1,8 @@
 package com.example.coen390_assignment2;
 
+import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +26,7 @@ public class DialogHelper extends DialogFragment {
     }
     public OnInputListener onInputListener;
 
+    // Initialize variables
     protected EditText surname, name, id, gpa;
     protected Button cancel, save;
     protected DatabaseHelper dbHelper;
@@ -32,6 +35,7 @@ public class DialogHelper extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add_profile, container, false);
+
         dbHelper = new DatabaseHelper(getActivity(), Config.DATABASE_NAME, null, Config.DATABASE_VERSION);
 
         cancel = (Button) view.findViewById(R.id.cancel_button);
@@ -52,27 +56,37 @@ public class DialogHelper extends DialogFragment {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String message = "Save Successful";
                 String setName = name.getText().toString();
                 String setSurname = surname.getText().toString();
-                int setId = Integer.parseInt(id.getText().toString());
-                double setGpa = Double.parseDouble(gpa.getText().toString());
-                String formatGpa = new DecimalFormat("#0.00").format(setGpa);
-                setGpa = Double.parseDouble(formatGpa);
+                String strId = id.getText().toString();
+                String strGpa = gpa.getText().toString();
+                String message = "Save Successful";
 
-                if(setName.equals("") || setSurname.equals("") || id.getText().toString().equals("") || gpa.getText().toString().equals("")) {
+                if(setName.equals("") || setSurname.equals("") || strId.equals("") || strGpa.equals(""))
                     message = "Wrong or missing attributes. Nothing will be saved, staying in add profile mode";
-                } else if (setGpa > 4.3 || setGpa < 0) {
-                    message = "Cannot add profile, GPA is incorrect";
-                } else {
-                    if (dbHelper.insertProfile(setName, setSurname, setId, setGpa)) {
-                        getDialog().dismiss();
+                else {
+                    int setId = Integer.parseInt(strId);
+                    double setGpa = Double.parseDouble(strGpa);
+                    String formatGpa = new DecimalFormat("#0.00").format(setGpa);
+                    setGpa = Double.parseDouble(formatGpa);
+
+                    if (setGpa > 4.3 || setGpa < 0) {
+                        message = "Cannot add profile, GPA is incorrect";
+                    } else if (setId < 1000000 || setId > 99999999) {
+                        message = "Cannot add profile, ID is invalid";
                     } else {
-                        message = "Cannot add profile, id in already in use";
+                        if (dbHelper.insertProfile(setName, setSurname, setId, setGpa)) {
+                            // update main activity page with new entry
+                            ((MainActivity)getActivity()).updatePage();
+
+                            // return to main activity
+                            getDialog().dismiss();
+                        } else {
+                            message = "Cannot add profile, ID in already in use";
+                        }
                     }
                 }
-
-                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
         return view;

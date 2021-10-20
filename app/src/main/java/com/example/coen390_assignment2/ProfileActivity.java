@@ -7,6 +7,7 @@ package com.example.coen390_assignment2;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +51,24 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    // Display options menu in task-bar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.deletemenu, menu);
+        return true;
+    }
+
+    // Create the action when an option on the task-bar is selected
+    @Override
+    public  boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.delete_profile) {
+            dbHelper.dropProfile(profileId);
+        }
+        openMainActivity();
+        return super.onOptionsItemSelected(item);
+    }
+
     public void displayProfileInfo(int profileId) {
         surname = (TextView) findViewById(R.id.surname);
         name = (TextView) findViewById(R.id.name);
@@ -70,7 +89,10 @@ public class ProfileActivity extends AppCompatActivity {
         activityList.setAdapter(arrayAdapter);
     }
 
-
+    private void openMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
 
     // Navigate back to homepage on task-bar return
     @Override
