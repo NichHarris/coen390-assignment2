@@ -13,6 +13,7 @@ public class SharePreferenceHelper {
         sharedPreferences = context.getSharedPreferences("ProfilePreference", Context.MODE_PRIVATE);
     }
 
+    // Set the current display mode
     public void setDisplayMode(boolean isEnabled) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         assert editor != null;
@@ -20,5 +21,6 @@ public class SharePreferenceHelper {
         editor.apply();
     }
 
+    // Get the current display mode
     public boolean getDisplayMode() { return sharedPreferences.getBoolean("displayMode", true); }
 }

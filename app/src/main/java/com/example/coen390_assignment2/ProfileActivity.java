@@ -23,6 +23,7 @@ import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
 
+    // Declare variables
     protected DatabaseHelper dbHelper;
     protected int profileId;
     protected ListView activityList;
@@ -33,6 +34,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        // Initialize Variables
         Bundle carryOver = getIntent().getExtras();
         dbHelper = new DatabaseHelper(this, Config.DATABASE_NAME, null, Config.DATABASE_VERSION);
 
@@ -42,7 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             profileId = -1;
             Toast.makeText(this, "Invalid id", Toast.LENGTH_SHORT).show();
-            onNavigateUp();
+            openMainActivity();
         }
 
         // Add task-bar
@@ -69,6 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Display the profile info for the current profile
     public void displayProfileInfo(int profileId) {
         surname = (TextView) findViewById(R.id.surname);
         name = (TextView) findViewById(R.id.name);
@@ -77,11 +80,11 @@ public class ProfileActivity extends AppCompatActivity {
         date = (TextView) findViewById(R.id.create_date);
 
         String[] profileInfo = dbHelper.getProfile(profileId);
-        surname.setText(String.format("Surname: %s", profileInfo[1]));
         name.setText(String.format("Name: %s", profileInfo[0]));
-        id.setText(String.format("ID: %s", profileInfo[2]));
-        gpa.setText(String.format("GPA: %s", profileInfo[3]));
-        date.setText(String.format("Profile created: %s", profileInfo[4]));
+        surname.setText(String.format("Surname: %s", profileInfo[1]));
+        id.setText(String.format("ID: %s", profileInfo[3]));
+        gpa.setText(String.format("GPA: %s", profileInfo[4]));
+        date.setText(String.format("Profile created: %s", profileInfo[2]));
 
         activityList = (ListView) findViewById(R.id.activity_list);
 
@@ -89,6 +92,7 @@ public class ProfileActivity extends AppCompatActivity {
         activityList.setAdapter(arrayAdapter);
     }
 
+    // Return to main activity
     private void openMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);

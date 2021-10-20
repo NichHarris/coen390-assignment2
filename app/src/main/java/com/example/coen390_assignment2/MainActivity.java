@@ -27,7 +27,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Initialize variables
+    // Declare variables
     protected SharePreferenceHelper sharePreferenceHelper;
     protected DatabaseHelper dbHelper;
     protected TextView userCount;
@@ -39,12 +39,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Variables
         sharePreferenceHelper = new SharePreferenceHelper(MainActivity.this);
         dbHelper = new DatabaseHelper(this, Config.DATABASE_NAME, null, Config.DATABASE_VERSION);
+
+        // button
+        addUser = (Button) findViewById(R.id.add_user);
+
+        // texts
         userCount = (TextView) findViewById(R.id.num_profiles);
         userList = (ListView) findViewById(R.id.user_list);
+
         updatePage();
 
+        // Open the profile of the user selected
         userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -53,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        addUser = (Button) findViewById(R.id.add_user);
+        // Open DialogHelper to add a profile
         addUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,15 +84,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    // Update the ListView with the users
     public void setUserList(List<String[]> users) {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, convertList(users, sharePreferenceHelper.getDisplayMode()));
         userList.setAdapter(arrayAdapter);
     }
 
+    // Update the number of profiles and format
     public void setUserCount(String mode, int count) {
         userCount.setText(String.format("%d Profiles, by %s", count, mode));
     }
 
+    // Convert the profile list based on current format mode
     public List<String> convertList(List<String[]> iList, boolean mode) {
         List<String> returnList = new ArrayList<>();
         profileIds = new ArrayList<>();
@@ -120,12 +131,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Open profile activity
     public void openUser(int userId) {
         Intent intent = new Intent(this, ProfileActivity.class);
         intent.putExtra("id", userId);
         startActivity(intent);
     }
 
+    // Update the main activity page with any new profile information
     public void updatePage() {
         if (sharePreferenceHelper.getDisplayMode()) {
             setUserList(dbHelper.getAllProfiles("surname"));

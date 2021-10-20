@@ -26,7 +26,7 @@ public class DialogHelper extends DialogFragment {
     }
     public OnInputListener onInputListener;
 
-    // Initialize variables
+    // Declare variables
     protected EditText surname, name, id, gpa;
     protected Button cancel, save;
     protected DatabaseHelper dbHelper;
@@ -36,16 +36,20 @@ public class DialogHelper extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add_profile, container, false);
 
+        // Initialize Variables
         dbHelper = new DatabaseHelper(getActivity(), Config.DATABASE_NAME, null, Config.DATABASE_VERSION);
 
+        // buttons
         cancel = (Button) view.findViewById(R.id.cancel_button);
         save = (Button) view.findViewById(R.id.save_button);
 
+        // texts
         surname = (EditText) view.findViewById(R.id.student_surname);
         name = (EditText) view.findViewById(R.id.student_name);
         id = (EditText) view.findViewById(R.id.student_id);
         gpa = (EditText) view.findViewById(R.id.student_gpa);
 
+        // cancel dialog, return to MainActivity
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -53,6 +57,7 @@ public class DialogHelper extends DialogFragment {
             }
         });
 
+        // Verify and save info, return to MainActivity
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

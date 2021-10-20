@@ -50,68 +50,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean insertProfile(String name, String surname, int id, double gpa) {
-        boolean status = false;
-        SQLiteDatabase db = write();
-        ContentValues cvProfile = new ContentValues();
-        cvProfile.put(Config.COLUMN_PROFILE_ID, id);
-        cvProfile.put(Config.COLUMN_PROFILE_NAME, name);
-        cvProfile.put(Config.COLUMN_PROFILE_SURNAME, surname);
-        cvProfile.put(Config.COLUMN_PROFILE_GPA, gpa);
-        cvProfile.put(Config.COLUMN_PROFILE_DATE, getDate());
+    // PUBLIC METHODS //
 
-        ContentValues cvAccess = new ContentValues();
-        cvAccess.put(Config.COLUMN_ACCESS_PROFILEID, id);
-        cvAccess.put(Config.COLUMN_ACCESS_TYPE, "created");
-        cvAccess.put(Config.COLUMN_ACCESS_TIME, getDate());
-        try {
-            db.insertOrThrow(Config.PROFILE_TABLE_NAME, null, cvProfile);
-            db.insertOrThrow(Config.ACCESS_TABLE_NAME, null, cvAccess);
-            status = true;
-        } catch (SQLException e) {
-            Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
-        } finally {
-            db.close();
+    // Add a profile to the DB
+    public boolean insertProfile(String name, String surname, int id, double gpa) {
+        if (writeToProfile(name, surname, id, gpa)) {
+            return writeToAccess(id, "created");
         }
-        return status;
+        return false;
     }
 
+    // Retrieve a specific profile from the DB
+    @SuppressLint("Range")
     public String[] getProfile(int id) {
         String[] result = {};
-        Cursor cursor = null;
 
-        try (SQLiteDatabase db = read()) {
-            cursor = db.query(Config.PROFILE_TABLE_NAME, new String[]{Config.COLUMN_PROFILE_ID, Config.COLUMN_PROFILE_NAME, Config.COLUMN_PROFILE_SURNAME, Config.COLUMN_PROFILE_GPA, Config.COLUMN_PROFILE_DATE}, String.format("%s =?", Config.COLUMN_PROFILE_ID), new String[]{Integer.toString(id)}, null, null, null);
+        try (Cursor cursor = read().query(Config.PROFILE_TABLE_NAME, new String[]{Config.COLUMN_PROFILE_ID, Config.COLUMN_PROFILE_NAME, Config.COLUMN_PROFILE_SURNAME, Config.COLUMN_PROFILE_GPA, Config.COLUMN_PROFILE_DATE}, String.format("%s =?", Config.COLUMN_PROFILE_ID), new String[]{Integer.toString(id)}, null, null, null)) {
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_NAME));
-                    @SuppressLint("Range") String surname = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_SURNAME));
-                    @SuppressLint("Range") String date = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_DATE));
-                    @SuppressLint("Range") String profileId = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_ID));
-                    @SuppressLint("Range") String gpa = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_GPA));
-                    result = new String[]{name, surname, profileId, gpa, date};
-
-                    SQLiteDatabase writeDb = this.getWritableDatabase();
-                    ContentValues cvAccess = new ContentValues();
-                    cvAccess.put(Config.COLUMN_ACCESS_PROFILEID, id);
-                    cvAccess.put(Config.COLUMN_ACCESS_TYPE, "opened");
-                    cvAccess.put(Config.COLUMN_ACCESS_TIME, getDate());
-                    try {
-                        writeDb.insertOrThrow(Config.ACCESS_TABLE_NAME, null, cvAccess);
-                    } catch (SQLException e) {
-                        Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
-                    } finally {
-                        writeDb.close();
-                    }
-                    return result;
+                    // Create access entry
+                    writeToAccess(id, "opened");
+                    return getProfileInfo(cursor);
                 }
             }
         } catch (SQLException e) {
             Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_SHORT).show();
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
         }
         return result;
     }
@@ -122,67 +85,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return read().query(Config.PROFILE_TABLE_NAME, returnColumns, null, null, null, null, sortType);
     }
 
+    // Get access table entries only for a specific ID
     public Cursor getOnlyIdAccess(int id) {
         String[] returnColumns = new String[]{Config.COLUMN_ACCESS_ACCESSID, Config.COLUMN_ACCESS_PROFILEID, Config.COLUMN_ACCESS_TYPE, Config.COLUMN_ACCESS_TIME};
         String strId = String.format("%d", id);
         return read().query(Config.ACCESS_TABLE_NAME, returnColumns, String.format("%s = ?", Config.COLUMN_ACCESS_PROFILEID), new String[]{strId}, null, null, Config.COLUMN_ACCESS_ACCESSID + " DESC");
     }
 
-    // get a readable db
-    public SQLiteDatabase read() { return this.getReadableDatabase(); }
-
-    // get a writable db
-    public SQLiteDatabase write() { return this.getWritableDatabase(); }
-
-
+    // Return all profiles in the DB
     @SuppressLint("Range")
     public List<String[]> getAllProfiles(String sortType) {
-        SQLiteDatabase db = read();
-        Cursor cursor = null;
-
-        try {
-            cursor = sortBy(sortType);
+        try (Cursor cursor = sortBy(sortType)) {
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     List<String[]> users = new ArrayList<>();
                     do {
-                        String name = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_NAME));
-                        String surname = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_SURNAME));
-                        String date = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_DATE));
-                        String profileId = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_ID));
-                        String gpa = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_GPA));
-                        String[] str = new String[]{name, surname, date, profileId, gpa};
-                        users.add(str);
-                    } while(cursor.moveToNext());
+                        users.add(getProfileInfo(cursor));
+                    } while (cursor.moveToNext());
                     return users;
                 }
             }
         } catch (SQLiteException e) {
             Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            db.close();
         }
         return Collections.emptyList();
     }
 
+    // Add a close profile entry to access table
     public void closeProfile(int id) {
-        SQLiteDatabase db = write();
-        ContentValues cvAccess = new ContentValues();
-        cvAccess.put(Config.COLUMN_ACCESS_PROFILEID, id);
-        cvAccess.put(Config.COLUMN_ACCESS_TYPE, "closed");
-        cvAccess.put(Config.COLUMN_ACCESS_TIME, getDate());
-        try {
-            db.insertOrThrow(Config.ACCESS_TABLE_NAME, null, cvAccess);
-        } catch (SQLException e) {
-            Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
-        } finally {
-            db.close();
-        }
+        // Create access entry
+        writeToAccess(id, "closed");
     }
 
+    // Remove a profile from the DB
     public void dropProfile(int id) {
         try (SQLiteDatabase db = write()) {
             db.delete(Config.PROFILE_TABLE_NAME, Config.COLUMN_PROFILE_ID + "=" + String.format("%d", id), null);
@@ -191,23 +126,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    // Get the number of profiles in the DB
     public int getNumUsers() {
         long num = 0;
-        try (SQLiteDatabase db = read()) {
-            num = DatabaseUtils.queryNumEntries(db, Config.PROFILE_TABLE_NAME);
+        try {
+            num = DatabaseUtils.queryNumEntries(read(), Config.PROFILE_TABLE_NAME);
         } catch (SQLException e) {
             Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
         }
         return (int) num;
     }
 
+    // Get a list of all accesses for a user from the DB
     @SuppressLint("Range")
     public List<String> getAccessList(int id) {
-        SQLiteDatabase db = read();
-        Cursor cursor = null;
 
-        try {
-            cursor = getOnlyIdAccess(id);
+        try (Cursor cursor = getOnlyIdAccess(id)) {
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     List<String> access = new ArrayList<>();
@@ -219,15 +153,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         } catch (SQLiteException e) {
             Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            db.close();
         }
         return Collections.emptyList();
     }
 
+    // PRIVATE METHODS //
+
+    // get a readable db
+    private SQLiteDatabase read() { return this.getReadableDatabase(); }
+
+    // get a writable db
+    private SQLiteDatabase write() { return this.getWritableDatabase(); }
+
+    // Write to profile table
+    private boolean writeToProfile(String name, String surname, int id, double gpa) {
+        ContentValues cV = new ContentValues();
+        cV.put(Config.COLUMN_PROFILE_ID, id);
+        cV.put(Config.COLUMN_PROFILE_NAME, name);
+        cV.put(Config.COLUMN_PROFILE_SURNAME, surname);
+        cV.put(Config.COLUMN_PROFILE_GPA, gpa);
+        cV.put(Config.COLUMN_PROFILE_DATE, getDate());
+        try {
+            write().insertOrThrow(Config.PROFILE_TABLE_NAME, null, cV);
+            return true;
+        } catch (SQLException e) {
+            Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
+        }
+        return false;
+    }
+
+    // Write to Access table
+    private boolean writeToAccess(int id, String type) {
+        ContentValues cV = new ContentValues();
+        cV.put(Config.COLUMN_ACCESS_PROFILEID, id);
+        cV.put(Config.COLUMN_ACCESS_TYPE, type);
+        cV.put(Config.COLUMN_ACCESS_TIME, getDate());
+        try {
+            write().insertOrThrow(Config.ACCESS_TABLE_NAME, null, cV);
+            return true;
+        } catch (SQLException e) {
+            Toast.makeText(context, "Operation failed: " + e, Toast.LENGTH_LONG).show();
+        }
+        return false;
+    }
+
+    // Get profile info for current cursor
+    @SuppressLint("Range")
+    private String[] getProfileInfo(Cursor cursor) {
+        String name = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_NAME));
+        String surname = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_SURNAME));
+        String date = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_DATE));
+        String profileId = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_ID));
+        String gpa = cursor.getString(cursor.getColumnIndex(Config.COLUMN_PROFILE_GPA));
+        return new String[]{name, surname, date, profileId, gpa};
+    }
+
+    // Get the current date/time and format
     private String getDate() {
         String date = LocalDate.now().toString();
         String time = LocalTime.now().toString();
