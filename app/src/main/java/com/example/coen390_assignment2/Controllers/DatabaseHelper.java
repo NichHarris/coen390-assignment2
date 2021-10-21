@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private Context context;
+    private final Context context;
 
     public DatabaseHelper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, null, version);
@@ -209,5 +209,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String time = LocalTime.now().toString();
         return String.format("%s @ %s", date, time);
     }
-
 }

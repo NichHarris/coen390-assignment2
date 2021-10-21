@@ -48,7 +48,6 @@ public class ProfileActivity extends AppCompatActivity {
         // Add task-bar
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     }
 
     // Display options menu in task-bar

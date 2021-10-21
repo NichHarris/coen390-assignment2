@@ -6,6 +6,7 @@ package com.example.coen390_assignment2.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -91,11 +92,13 @@ public class MainActivity extends AppCompatActivity {
         userList.setAdapter(arrayAdapter);
     }
 
+    @SuppressLint("DefaultLocale")
     // Update the number of profiles and format
     public void setUserCount(String mode, int count) {
         userCount.setText(String.format("%d Profiles, by %s", count, mode));
     }
 
+    @SuppressLint("DefaultLocale")
     // Convert the profile list based on current format mode
     public List<String> convertList(List<String[]> iList, boolean mode) {
         List<String> returnList = new ArrayList<>();
